@@ -40,11 +40,13 @@ export class AlunosService {
     }
   }
 
-  async findAllPage(
+  async findAllPageFilter(
     page: number,
     limit: number,
     nome?: string,
     curso?: string,
+    orderBy?: string,                   
+    orderDirection: 'asc' | 'desc' = 'asc' 
   ) {
     const skip = (page - 1) * limit;
 
@@ -62,8 +64,14 @@ export class AlunosService {
       filtro.cursos = curso;
     }
 
-    const [data, total] = await Promise.all([
-      this.alunoModel.find(filtro).skip(skip).limit(limit).exec(),
+    const sort: any = {};
+
+    if(orderBy) {
+      sort[orderBy] = orderDirection === 'desc' ? -1 : 1;
+    }
+
+  const [data, total] = await Promise.all([
+      this.alunoModel.find(filtro).sort(sort).skip(skip).limit(limit).exec(),
       this.alunoModel.countDocuments(filtro).exec(),
     ]);
 

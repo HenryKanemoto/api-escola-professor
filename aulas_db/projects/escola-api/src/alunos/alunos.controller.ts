@@ -52,7 +52,7 @@ export class AlunosController {
     summary: 'Retorna a lista de todos os alunos',
   })
   @ApiResponse({
-    status: 201,
+    status: 200, // Dica: Use 200 (OK) para GET, 201 é usado para POST (Created)
     description: 'Lista de alunos retornada com sucesso!',
   })
   @ApiResponse({
@@ -87,13 +87,43 @@ export class AlunosController {
     type: 'string',
     description: 'Filtra alunos pelo curso',
   })
-  findAllPage(
+  // NOVOS API QUERIES AQUI:
+  @ApiQuery({
+    name: 'orderBy',
+    required: false,
+    type: 'string',
+    description: 'Campo pelo qual os resultados serão ordenados (ex: nome, createdAt)',
+  })
+  @ApiQuery({
+    name: 'orderDirection',
+    required: false,
+    enum: ['asc', 'desc'],
+    description: 'Direção da ordenação: asc (crescente) ou desc (decrescente)',
+  })
+  @ApiQuery({
+    name: 'orderBy',
+    required: false,
+    type: String,
+    description: 'Ordena os resultados pelo campo especificado'
+  })
+  @ApiQuery({
+    name: 'orderDirection',
+    required: false,
+    enum: [
+      'asc',
+      'desc',
+    ],
+    description: 'Define a direção da ordenação (asc para ascendente e desc para descendente)'
+  })
+  findAllPageFilter(
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
     @Query('nome') nome?: string,
     @Query('curso') curso?: string,
+    @Query('orderBy') orderBy?: string,
+    @Query('orderDirection') orderDirection?: 'asc' | 'desc',
   ) {
-    return this.alunosService.findAllPage(page, limit, nome, curso);
+    return this.alunosService.findAllPageFilter(page, limit, nome, curso, orderBy, orderDirection);
   }
 
   @Get(':id')
