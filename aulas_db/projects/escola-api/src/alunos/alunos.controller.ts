@@ -166,6 +166,11 @@ export class AlunosController {
     return this.alunosService.update(id, updateAlunoDto);
   }
 
+  @Patch(':id/restore')
+  restore(@Param('id') id: string) {
+    return this.alunosService.restore(id);
+  }
+
   @Delete(':id')
   @ApiOperation({
     summary: 'Deleta apenas um aluno pelo ID',

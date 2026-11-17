@@ -51,9 +51,10 @@ export class AlunosService {
     const skip = (page - 1) * limit;
 
     const filtro: {
+      ativo: boolean;
       nome?: { $regex: RegExp };
       cursos?: string;
-    } = {};
+    } = { ativo: true };
     if (nome) {
       filtro.nome = {
         $regex: new RegExp(nome, 'i'),
@@ -91,7 +92,7 @@ export class AlunosService {
   // }
 
   async findOne(id: string): Promise<Aluno> {
-    const aluno = await this.alunoModel.findById(id).exec();
+    const aluno = await this.alunoModel.findOne({ _id: id, ativo: true }).exec();
 
     if (!aluno) {
       throw new NotFoundException(`Aluno com id ${id} não encontrado`);
@@ -115,7 +116,21 @@ export class AlunosService {
   }
 
   async remove(id: string): Promise<Aluno> {
-    const aluno = await this.alunoModel.findByIdAndDelete(id).exec();
+    const aluno = await this.alunoModel
+      .findByIdAndUpdate(id, { $set: { ativo: false } }, { new: true })
+      .exec();
+
+    if (!aluno) {
+      throw new NotFoundException(`Aluno com id ${id} não encontrado`);
+    }
+
+    return aluno;
+  }
+
+  async restore(id: string): Promise<Aluno> {
+    const aluno = await this.alunoModel
+      .findByIdAndUpdate(id, { $set: { ativo: true } }, { new: true })
+      .exec();
 
     if (!aluno) {
       throw new NotFoundException(`Aluno com id ${id} não encontrado`);
